@@ -4,10 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Chính</title>
+    <style>
+        #teacherLogin, #studentLogin {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function showLogin(role) {
+            document.getElementById('teacherLogin').style.display = role === 'teacher' ? 'block' : 'none';
+            document.getElementById('studentLogin').style.display = role === 'student' ? 'block' : 'none';
+        }
+
+        function accessPage(role) {
+            const code = role === 'teacher' 
+                         ? document.getElementById('teacherCode').value 
+                         : document.getElementById('studentCode').value;
+            if (code) {
+                location.href = role === 'teacher' ? 'teacher.html' : 'student.html';
+            } else {
+                alert('Vui lòng nhập mã truy cập.');
+            }
+        }
+    </script>
 </head>
 <body>
-    <h1>Chọn một lựa chọn:</h1>
-    <button onclick="location.href='yes.html'">Có</button>
-    <button onclick="location.href='no.html'">Không</button>
+    <h1>Chọn vai trò của bạn:</h1>
+    <button onclick="showLogin('teacher')">Giáo viên</button>
+    <button onclick="showLogin('student')">Học sinh</button>
+
+    <div id="teacherLogin">
+        <h2>Đăng nhập Giáo viên</h2>
+        <input type="password" id="teacherCode" placeholder="Nhập mã giáo viên">
+        <button onclick="accessPage('teacher')">Truy cập</button>
+    </div>
+
+    <div id="studentLogin">
+        <h2>Đăng nhập Học sinh</h2>
+        <input type="password" id="studentCode" placeholder="Nhập mã học sinh">
+        <button onclick="accessPage('student')">Truy cập</button>
+    </div>
 </body>
 </html>
