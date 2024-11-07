@@ -5,29 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Chính</title>
     <style>
-        #teacherLogin, #studentLogin {
+        #teacherLogin, #studentLogin, #adminPanel {
             display: none;
             margin-top: 10px;
         }
     </style>
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
     <script>
-        function showLogin(role) {
-            document.getElementById('teacherLogin').style.display = role === 'teacher' ? 'block' : 'none';
-            document.getElementById('studentLogin').style.display = role === 'student' ? 'block' : 'none';
-        }
-
-        function accessPage(role) {
-            const code = role === 'teacher' 
-                         ? document.getElementById('teacherCode').value 
-                         : document.getElementById('studentCode').value;
-            if (code) {
-                location.href = role === 'teacher' ? 'teacher.html' : 'student.html';
-            } else {
-                alert('Vui lòng nhập mã truy cập.');
-            }
-        }
+        // Cấu hình Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyD7oDZoD_Ee95pr_InzWLu6GTK5lPt5JmI",
+          authDomain: "dgnhom-a539f.firebaseapp.com",
+          databaseURL: "https://dgnhom-a539f-default-rtdb.firebaseio.com",
+          projectId: "dgnhom-a539f",
+          storageBucket: "dgnhom-a539f.firebasestorage.app",
+          messagingSenderId: "971317183699",
+          appId: "1:971317183699:web:3da19170fcc4fec3098026"
+        };
+        
+        // Khởi tạo Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
     </script>
 </head>
+
+    
 <body>
     <h1>Chọn vai trò của bạn:</h1>
     <button onclick="showLogin('teacher')">Giáo viên</button>
@@ -44,5 +48,64 @@
         <input type="password" id="studentCode" placeholder="Nhập mã học sinh">
         <button onclick="accessPage('student')">Truy cập</button>
     </div>
+
+    <hr>
+    <button onclick="showAdminPanel()">Quản trị viên: Cập nhật mã truy cập</button>
+    
+    <div id="adminPanel">
+        <h2>Cập nhật mã truy cập</h2>
+        <input type="password" id="newTeacherCode" placeholder="Nhập mã mới cho giáo viên">
+        <input type="password" id="newStudentCode" placeholder="Nhập mã mới cho học sinh">
+        <button onclick="updateAccessCode()">Lưu mã mới</button>
+    </div>
+</body>
+
+
+    
+<body>
+    <script>
+    // Hiển thị giao diện đăng nhập
+    function showLogin(role) {
+        document.getElementById('teacherLogin').style.display = role === 'teacher' ? 'block' : 'none';
+        document.getElementById('studentLogin').style.display = role === 'student' ? 'block' : 'none';
+    }
+
+    // Hàm truy xuất mã từ Firebase và kiểm tra mã người dùng nhập vào
+    async function accessPage(role) {
+        const enteredCode = role === 'teacher' 
+                            ? document.getElementById('teacherCode').value 
+                            : document.getElementById('studentCode').value;
+
+        try {
+            const snapshot = await firebase.database().ref(role + 'Code').once('value');
+            const storedCode = snapshot.val();
+
+            if (enteredCode === storedCode) {
+                location.href = role === 'teacher' ? 'teacher.html' : 'student.html';
+            } else {
+                alert('Mã truy cập không hợp lệ. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            console.error("Lỗi khi truy xuất mã từ Firebase:", error);
+        }
+    }
+
+    // Hiển thị giao diện quản trị viên để thay đổi mã truy cập
+    function showAdminPanel() {
+        document.getElementById('adminPanel').style.display = 'block';
+    }
+
+    // Lưu mã truy cập mới vào Firebase
+    function updateAccessCode() {
+        const teacherCode = document.getElementById('newTeacherCode').value;
+        const studentCode = document.getElementById('newStudentCode').value;
+
+        if (teacherCode) firebase.database().ref('teacherCode').set(teacherCode);
+        if (studentCode) firebase.database().ref('studentCode').set(studentCode);
+
+        alert('Mã truy cập đã được cập nhật!');
+    }
+    </script>
+
 </body>
 </html>
